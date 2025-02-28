@@ -52,12 +52,15 @@ def assemble_rubrics_prompt(subject, level, question, rubrics, marks, student_re
 def evaluate_SA(user_prompt):
     client = OpenAI(api_key=openai_api_key)
     response = client.chat.completions.create(
-        model="gpt-4o-2024-08-06",
-        temperature = 0.1,
-        max_tokens = 16000,
+        #model="gpt-4o-2024-08-06",
+        model="o3-mini",
+        #temperature = 0.1,
+        #max_tokens = 16000,
+        #max_completion_tokens=50000,
         tools = tools.SA_Tools,
         messages=[{"role": "user", "content":user_prompt}]
         )
+    print(response)
     return response
 
 def evaluate_rubrics(user_prompt):

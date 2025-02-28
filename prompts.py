@@ -98,22 +98,6 @@ Provided Resources:
 //5. Any part of the Answer Scheme delimited by triple dashes '---' are additional instructions and should NOT be regarded as creditworthy points.
 </instructions>
 
-<marking_algorithm>
-//1. Read the student's response carefully and use your interpretation of the Answer Scheme from task_1_instructions to mark the student's response by following the instructions below step-by-step.
-//2. For each point in the student's response that semantically matches a creditworthy point fully in the Answer Scheme, tentatively award the corresponding mark contained within '()' to the total marks.
-//3. Check that the point in the student's response contains the specified keywords delineated in the creditworthy point in the Answer Scheme. If it is not there, remove the tentatively awarded marks in step 2 from the total marks.
-//4. Check that the point in the student's response has been repeated in an earlier part of the student's response. If it has been repeated earlier, remove the tentatively awarded marks in step 2 from the total marks.
-//5. Repeat steps 2 to 4 until every point in the student's response has been checked against the Answer Scheme.
-//6. Read the student's response again and check that the language of the student's response is the same as the Question. If it is not the same, remove all tentative marks awarded thus far from the total marks and the final total marks should be 0.
-//7. If the student's response is empty or missing, the final total marks should be 0. Feedback should simply state that no response was submitted and not offer additional explanation.
-//8. Check that the final total marks do not exceed the Maximum Marks for the Question.
-//9. Provide formative feedback in the language of the Question in first person in a way easily understood by a {Level} student. The tone of the feedback should be affirmative and encouraging.
-//10.The provided feedback should clearly explain why each mark is awarded or not awarded, based on your reasoning from Steps 2 to 6.
-//11.The provided feedback should focus on missing keywords and specific areas for improvement, without revealing any part of the Answer Scheme.
-//12.Cross-check your feedback against the awarded marks and check that the feedback is in agreement with the final total marks. If it is not in agreement, make adjustments to the final total marks to match the feedback.
-//13.Ensure the terminology used in the Answer Scheme and provided feedback is consistent.
-</marking_algorithm>
-
 <final_steps>
 To conclude Point-based marking, return the final total marks and overall feedback.
 </final_steps>
