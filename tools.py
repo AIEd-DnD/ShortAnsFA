@@ -72,6 +72,33 @@ SA_Tools = [
   }
 ]
 
+SA_Tools_v1 = [
+  {
+    "type": "function",
+    "function": {
+      "name": "get_marks_and_feedback",
+      "description": "Return awarded_marks and general_feedback in a list format with the properties required in a JSON object",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "awarded_marks": {
+            "type": "integer",
+            "description": "Final awarded marks given to the student's response according to the Grading Instructions."
+          },
+          "general_feedback": {
+            "type": "string",
+            "description": "Generated formative feedback to the student's response according to the Grading Instructions."
+          }},
+        "required": [
+          "awarded_marks",
+          "general_feedback"
+        ]
+      }
+    }
+  }
+]
+
+
 rubrics_Tools = [
     {
     "type": "function",
@@ -100,6 +127,45 @@ rubrics_Tools = [
               }
             },
             "description": "Return the list of rubrics responses with marks, dimensionId and rubrics_feedback"
+          }
+        },
+        "required": [
+          "rubrics"
+        ]
+      }
+    }
+  }
+]
+
+rubrics_Tools_v1 = [
+    {
+    "type": "function",
+    "function": {
+      "name": "get_rubrics_marks_and_feedback",
+      "description": "Return rubrics in a list format with the properties required in a JSON object",
+      "parameters": {
+        "type": "object",
+        "properties": {
+            "rubrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dimension_marks": {
+                  "type": "integer",
+                  "description":"Final awarded marks for the Dimension given to the student's response according to the Grading Instructions."
+                },
+                "dimensionId": {
+                  "type": "integer",
+                  "description": "Dimension ID"
+                },
+                "rubrics_feedback": {
+                  "type": "string",
+                  "description": "Generated formative feedback for the Dimension to the student's response according to the Grading Instructions."
+                }
+              }
+            },
+            "description": "Return the list of rubrics Dimension responses with dimension_marks, dimensionId and rubrics_feedback for every Dimension in the Rubric"
           }
         },
         "required": [
