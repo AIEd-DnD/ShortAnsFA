@@ -100,7 +100,7 @@ def evaluate_SA(user_prompt):
         temperature = 0.1,
         max_tokens = 4000,
         #max_completion_tokens=50000,
-        tools = tools.SA_Tools_v1,
+        tools = tools.SA_Tools,
         messages=[{"role": "user", "content":user_prompt}]
         )
     #print(response)

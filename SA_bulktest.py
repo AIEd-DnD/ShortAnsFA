@@ -3,10 +3,11 @@ import helper_functions as SAFA
 data = list()
 #test_name = input("Please enter the name of the test: ")               #uncomment this to unlock user input for test name
 #file_path = input("Please enter the file path of the test data: ")     #uncomment this to unlock user input for file path
-evaluation_record = SAFA.start_new_SA_record("BulkEval_Test_split_newprompt_newtools")
+evaluation_record = SAFA.start_new_SA_record("BulkEval_Test_split_newprompt_oldtools")
 print("The evaluation record has been created.")
 response_list = SAFA.csv_to_list_of_dicts("Dataset/BulkTest_SAFA_SuggestedAnswer.csv")
 print("The response list has been created.")
+rubric = ' '
 
 for scenario_dict in response_list:
     new_row = list()
@@ -24,8 +25,10 @@ for scenario_dict in response_list:
     print('Trying response '+str(response_list.index(scenario_dict)+1))
 
     user_prompt = SAFA.assemble_SA_prompt(subject, level, question, suggested_answer, max_marks, instructions, students_response)
+    #print(user_prompt)
     response = SAFA.evaluate_SA(user_prompt)
-    awarded_marks, general_feedback = SAFA.extract_SA_feedback_and_marks(response)
+    #print(response)
+    awarded_marks, general_feedback = SAFA.extract_feedback_and_marks(response)
     
     int_awarded_marks = int(awarded_marks)
     int_exp_marks = int(exp_marks)

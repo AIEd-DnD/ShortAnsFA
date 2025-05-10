@@ -224,7 +224,7 @@ Your objective is to:
 5. Provide formative feedback in the language of the Question that addresses the student directly.
 6. The complexity of the language used for the feedback must be easily understood by a {Level} student.
 7. The tone of the feedback should be affirmative and encouraging.
-8. The feedback should explain why the student’s response falls within the selected grading band according to the [Description] of the grading band and with reference to specific examples from the student's response.
+8. The feedback should explain why the student's response falls within the selected grading band according to the [Description] of the grading band and with reference to specific examples from the student's response.
 9. The feedback should focus on areas of improvement, helping the student understand how to enhance his or her response based on the [Description]. Do not mention 'achieving higher marks' as an area of improvement.
 10. Check that the language of the student's response is the same as the language of the Question. If the language is not the same (for example if the Question is in Chinese but the student's response is in English), the final awarded marks should be 0 for all [Dimensions].
 11. If the student's response is empty or missing, the final awarded marks for all [Dimensions] should be 0. The feedback should simply state that no response was submitted and not offer additional explanation.
