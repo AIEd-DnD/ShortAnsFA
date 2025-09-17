@@ -22,7 +22,7 @@ def start_new_Rubric_record(file_name):
 
 def SA_write_into_record(filename, data):
     header = ['Subject','Level','Question','Student Response','Suggested Answer','Instructions','Maximum Marks','Expected Marks','Awarded Marks','Mark Variance','Feedback',]
-    with open(filename, 'w', newline='') as file:
+    with open(filename, 'w', newline='',encoding='utf-8-sig') as file:
         writer = csv.writer(file)
         writer.writerow(header)
         writer.writerows(data)
@@ -30,7 +30,7 @@ def SA_write_into_record(filename, data):
 
 def Rubric_write_into_record(filename, data):
     header = ['Subject','Level','Question','Student Response','Rubric','Instructions','Maximum Marks','Expected Marks','Awarded Marks','Mark Variance','Feedback',]
-    with open(filename, 'w', newline='') as file:
+    with open(filename, 'w', newline='',encoding='utf-8-sig') as file:
         writer = csv.writer(file)
         writer.writerow(header)
         writer.writerows(data)
@@ -106,6 +106,17 @@ def evaluate_SA(user_prompt):
     #print(response)
     return response
 
+def evaluate_SA_gpt5(user_prompt):
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
+        model="gpt-5-2025-08-07",
+        reasoning_effort="high",
+        max_completion_tokens=32000,
+        tools = tools.SA_Tools_v1,
+        messages=[{"role": "user", "content":user_prompt}]
+        )
+    return response
+
 def evaluate_Rubric(user_prompt):
     client = OpenAI(api_key=openai_api_key)
     response = client.chat.completions.create(
@@ -113,6 +124,17 @@ def evaluate_Rubric(user_prompt):
         temperature = 0.1,
         max_tokens = 4000,
         tools = tools.rubrics_Tools_v1,
+        messages=[{"role": "user", "content":user_prompt}]
+        )
+    return response
+
+def evaluate_Rubric_gpt5(user_prompt):
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
+        model="gpt-5-2025-08-07",
+        reasoning_effort="high",
+        max_completion_tokens=32000,
+        tools = tools.rubrics_Tools
         messages=[{"role": "user", "content":user_prompt}]
         )
     return response
