@@ -46,7 +46,7 @@ full_tools = [
   }
 ]
 
-SA_Tools = [
+SA_Tools_v1 = [
         {
             "type": "function",
             "function": {
@@ -73,7 +73,7 @@ SA_Tools = [
         }
     ]
 
-SA_Tools_v1 = [
+SA_Tools_v2 = [
   {
     "type": "function",
     "function": {
@@ -100,7 +100,7 @@ SA_Tools_v1 = [
 ]
 
 
-rubrics_Tools = [
+rubrics_Tools_v1 = [
         {
             "type": "function",
             "function": {
@@ -143,7 +143,7 @@ rubrics_Tools = [
         }
     ]
 
-rubrics_Tools_v1 = [
+rubrics_Tools_v2 = [
     {
     "type": "function",
     "function": {

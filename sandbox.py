@@ -6,8 +6,12 @@ level = "Secondary 4"
 question = "Explain how the circuit breaker breaks the circuit."
 suggested_answer = "(1 mark): The current flowing through the coil causes it to become an electromagnet, which exerts a [downward] / [attracting] / [pulling] force on the iron arm. \n (1 mark): The magnetic force becomes greater as the current flowing through the coil increases. \n (1 mark): When the [current increases beyond 30 A], the force becomes great enough to separate the lower contact from the upper contact, thereby breaking the circuit. "
 marks = "3"
-student_response = "I don't know how to answer this question. I don't understand the circuit breaker. I think it is a switch that turns off the light when it is too bright. "
-additional_instructions = """In your feedback, check that the student has followed the Claim-Evidence-Reason framework. Identify the claim, evidence and reasoning in the student's response and provide feedback on each of them. Ensure each sentence is started as a new paragraph in your feedback."""
+student_response = "The current flowing through the coil turns it into an electromagnet, which exerts a force on the iron arm. The force becomes great enough to separate the lower contact from the upper contact, thereby breaking the circuit."
+additional_instructions = """
+If the student gives responses that are similar or the same as one of the following responses, award only a total of 1 mark for the entire response:
+1. The current flowing through the coil causes it to become an electromagnet, which exerts a force on the iron arm. When the current increases beyond 30 A, the force becomes great enough to separate the lower contact from the upper contact, thereby breaking the circuit. (Missing keyword: downward / attracting / pulling)
+"""
+response_url = "https://storage.googleapis.com/shortansfa_images/Screenshot%202025-10-03%20at%2015.32.36.png"
 
 ### Rubric ShortAnsFA
 #subject = "General Paper"
@@ -100,9 +104,11 @@ Maximum mark for this dimension: 20.
 print(" ")
 print("Standard Prompt Results")
 for e in range(3):
-    user_prompt_standard = SAFA.assemble_SA_prompt(subject, level, question, suggested_answer, marks, additional_instructions, student_response)
-    respose_standard = SAFA.evaluate_SA(user_prompt_standard)
-    awarded_standard_marks, general_standard_feedback = SAFA.extract_feedback_and_marks(respose_standard)
+    user_prompt_part_1 = SAFA.assemble_SA_prompt_split_all_part1(subject, level)
+    user_prompt_part_3 = SAFA.assemble_SA_prompt_split_all_part3(level, marks, additional_instructions)
+    response = SAFA.evaluate_SA_split_all(user_prompt_part_1, question, suggested_answer, user_prompt_part_3, student_response)
+    #print(response)
+    awarded_standard_marks, general_standard_feedback = SAFA.extract_feedback_and_marks(response)
     SAFA.display_feedback_and_marks(awarded_standard_marks, general_standard_feedback)
 
 #print("Rubric Prompt Results")

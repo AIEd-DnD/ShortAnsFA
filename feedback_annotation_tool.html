@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback Annotation Tool</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0; padding: 24px; min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px; margin: 0 auto; background: rgba(255,255,255,.97);
+      border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,.15); overflow: hidden;
+    }
+    .header { color: #fff; padding: 28px; text-align: center;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .header h1 { margin: 0 0 8px; font-size: 2rem; }
+    .progress { background: rgba(255,255,255,.25); border-radius: 10px; padding: 12px; }
+    .bar { height: 10px; background: rgba(255,255,255,.5); border-radius: 8px; overflow: hidden; }
+    .fill { height: 100%; width: 0%; background: #fff; transition: width .3s ease; }
+    .ptxt { margin-top: 8px; font-weight: 600; }
+
+    .main { padding: 28px; }
+    .upload {
+      background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 14px;
+      padding: 36px; text-align: center; margin-bottom: 24px; transition: .2s;
+    }
+    .upload:hover { border-color: #4facfe; background: #f0f8ff; }
+    .upload input { display:none; }
+    .upload label { cursor: pointer; font-weight: 700; color: #495057; }
+
+    .info {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 18px;
+    }
+    .info .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 14px; }
+    .label { font-size: .8rem; opacity: .7; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+    .value { margin-top: 6px; }
+
+    .qa-card { background: #ffffff; border: 1px solid #e9ecef; border-radius: 14px; padding: 18px; margin-bottom: 22px; }
+    .qa-card h3 { margin: 0 0 12px; color: #495057; }
+    .qa-field { margin-bottom: 12px; }
+    .qa-field .label { display:block; margin-bottom: 6px; }
+    .qa-box { background:#f8f9fa; border:1px solid #e9ecef; border-radius:10px; padding:12px; white-space: pre-wrap; }
+
+    .anno { background: #ffffff; border: 1px solid #e9ecef; border-radius: 14px; padding: 18px; }
+    .anno h3 { margin: 0 0 12px; color:#495057; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .chk { background:#f8f9fa; border:2px solid transparent; border-radius: 10px; padding: 12px; display:flex; align-items:center; gap:10px; }
+    .chk input { transform: scale(1.2); }
+    .chk.checked { background:#f0fff4; border-color:#28a745; }
+
+    .notes { margin-top: 14px; }
+    textarea { width: 100%; min-height: 90px; resize: vertical; padding: 12px; border-radius: 10px; border:2px solid #e9ecef; font-family: inherit; }
+
+    .controls { display:flex; justify-content:space-between; align-items:center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+    .btn { padding: 10px 20px; border:none; border-radius: 999px; font-weight: 700; cursor:pointer; letter-spacing: .3px; }
+    .primary { color:#fff; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .secondary { color:#fff; background:#6c757d; }
+    .success { color:#fff; background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); }
+
+    .status { margin-top: 14px; text-align:center; font-weight:700; border-radius: 10px; padding: 10px; display:none; }
+    .ok { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .err { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+
+    .hidden { display:none; }
+    @media (max-width: 768px){ .info{ grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Feedback Annotation Tool</h1>
+      <div class="progress">
+        <div class="bar"><div id="fill" class="fill"></div></div>
+        <div id="ptxt" class="ptxt">Upload CSV to begin</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div id="uploader" class="upload">
+        <input id="csvInput" type="file" accept=".csv" />
+        <label for="csvInput">📁 Click to upload CSV (must include: Question, Student Response, Feedback)</label>
+        <div style="margin-top: 16px; border-top:1px solid #e9ecef; padding-top: 16px;">
+          <button class="btn secondary" onclick="loadProgress()">📂 Load Progress (.json)</button>
+          <input id="progressFile" type="file" accept="application/json" class="hidden" />
+        </div>
+      </div>
+
+      <div id="app" class="hidden">
+        <div class="info">
+          <div class="card"><div class="label">Record</div><div id="recIdx" class="value">-</div></div>
+          <div class="card"><div class="label">Completed</div><div id="recDone" class="value">-</div></div>
+          <div class="card"><div class="label">Total</div><div id="recTotal" class="value">-</div></div>
+        </div>
+
+        <div class="qa-card">
+          <h3>Item</h3>
+          <div class="qa-field"><span class="label">Question</span><div id="q" class="qa-box">-</div></div>
+          <div class="qa-field"><span class="label">Student Response</span><div id="s" class="qa-box">-</div></div>
+          <div class="qa-field"><span class="label">Feedback</span><div id="f" class="qa-box">-</div></div>
+        </div>
+
+        <div class="anno">
+          <h3>Annotate</h3>
+          <div class="grid">
+            <label class="chk"><input type="checkbox" id="feed_up"/> Feed-up</label>
+            <label class="chk"><input type="checkbox" id="feed_back"/> Feed-back</label>
+            <label class="chk"><input type="checkbox" id="feed_forward"/> Feed-forward</label>
+            <label class="chk"><input type="checkbox" id="task_level"/> Task-level feedback</label>
+            <label class="chk"><input type="checkbox" id="process_level"/> Process-level feedback</label>
+            <label class="chk"><input type="checkbox" id="self_reg_level"/> Self-regulation level feedback</label>
+          </div>
+          <div class="notes">
+            <span class="label">Notes (optional)</span>
+            <textarea id="notes" placeholder="Add any remarks about this item..."></textarea>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div>
+            <button class="btn secondary" id="prevBtn">← Previous</button>
+            <button class="btn primary" id="saveBtn">💾 Save</button>
+            <button class="btn success" id="nextBtn">Next →</button>
+          </div>
+          <div>
+            <button class="btn secondary" onclick="saveProgress()">💾 Save Progress</button>
+            <button class="btn secondary" onclick="downloadCSV()">⬇️ Download Annotated CSV</button>
+          </div>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === State ===
+    let rows = [];           // Raw CSV rows (objects)
+    let index = 0;           // Current record index
+    let annotations = [];    // Per-row annotations
+    let headers = [];        // CSV headers
+
+    const REQ_HEADERS = ["Question", "Student Response", "Feedback"];
+
+    // === DOM ===
+    const csvInput = document.getElementById('csvInput');
+    const progressFile = document.getElementById('progressFile');
+    const uploader = document.getElementById('uploader');
+    const app = document.getElementById('app');
+    const q = document.getElementById('q');
+    const s = document.getElementById('s');
+    const f = document.getElementById('f');
+    const recIdx = document.getElementById('recIdx');
+    const recDone = document.getElementById('recDone');
+    const recTotal = document.getElementById('recTotal');
+    const fill = document.getElementById('fill');
+    const ptxt = document.getElementById('ptxt');
+    const statusDiv = document.getElementById('status');
+
+    const boxes = {
+      feed_up: document.getElementById('feed_up'),
+      feed_back: document.getElementById('feed_back'),
+      feed_forward: document.getElementById('feed_forward'),
+      task_level: document.getElementById('task_level'),
+      process_level: document.getElementById('process_level'),
+      self_reg_level: document.getElementById('self_reg_level'),
+      notes: document.getElementById('notes')
+    };
+
+    document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => go(1));
+    document.getElementById('saveBtn').addEventListener('click', saveCurrent);
+
+    csvInput.addEventListener('change', handleCSVUpload);
+    progressFile.addEventListener('change', handleProgressLoad);
+
+    document.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox') {
+        const wrap = e.target.closest('.chk');
+        if (wrap) wrap.classList.toggle('checked', e.target.checked);
+      }
+    });
+
+    // === CSV Parsing ===
+    function handleCSVUpload(e){
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const text = ev.target.result; 
+          const parsed = parseCSV(text);
+          headers = parsed.headers;
+          // Check required headers exist
+          const missing = REQ_HEADERS.filter(h => !headers.includes(h));
+          if (missing.length){
+            error(`Missing required columns: ${missing.join(', ')}`);
+            return;
+          }
+          rows = parsed.rows.map(r => ({
+            Question: r['Question'] ?? '',
+            'Student Response': r['Student Response'] ?? '',
+            Feedback: r['Feedback'] ?? ''
+          })).filter(r => Object.values(r).some(v => String(v).trim() !== ''));
+
+          annotations = new Array(rows.length).fill(null);
+          index = 0;
+
+          uploader.classList.add('hidden');
+          app.classList.remove('hidden');
+          render();
+          ok('CSV loaded successfully!');
+        } catch(err){ error('Could not parse CSV. Please check the format.'); console.error(err); }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSV(text){
+      const rows = [];
+      const headers = [];
+
+      // Robust quoted CSV parser
+      let i = 0, field = '', row = [], inQuotes = false; 
+      function endField(){ row.push(field); field = ''; }
+      function endRow(){ if (row.length) rows.push(row); row = []; }
+
+      while (i < text.length){
+        const ch = text[i];
+        if (inQuotes){
+          if (ch === '"'){
+            if (text[i+1] === '"'){ field += '"'; i++; }
+            else { inQuotes = false; }
+          } else { field += ch; }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ','){ endField(); }
+          else if (ch === '\n'){ endField(); endRow(); }
+          else if (ch === '\r') { /* skip */ }
+          else { field += ch; }
+        }
+        i++;
+      }
+      // flush last field/row
+      endField(); endRow();
+
+      if (!rows.length) return { headers: [], rows: [] };
+      const headerRow = rows.shift().map(h => h.trim());
+      headerRow.forEach(h => headers.push(h));
+
+      const objs = rows.map(r => {
+        const o = {}; headerRow.forEach((h, idx) => { o[h] = (r[idx] ?? '').trim(); }); return o;
+      });
+      return { headers, rows: objs };
+    }
+
+    // === Rendering ===
+    function render(){
+      if (!rows.length){ ptxt.textContent = 'No rows to annotate'; return; }
+      const total = rows.length;
+      const done = annotations.filter(a => a).length;
+      const pct = total ? Math.round((done/total)*100) : 0;
+      fill.style.width = pct + '%';
+      ptxt.textContent = `Item ${index+1} of ${total} (${done} completed)`;
+      recIdx.textContent = `${index+1}`;
+      recDone.textContent = `${done}`;
+      recTotal.textContent = `${total}`;
+
+      const r = rows[index];
+      q.textContent = r['Question'] || '-';
+      s.textContent = r['Student Response'] || '-';
+      f.textContent = r['Feedback'] || '-';
+
+      // Load existing annotation state
+      const a = annotations[index];
+      boxes.feed_up.checked = !!(a && a.feed_up);
+      boxes.feed_back.checked = !!(a && a.feed_back);
+      boxes.feed_forward.checked = !!(a && a.feed_forward);
+      boxes.task_level.checked = !!(a && a.task_level);
+      boxes.process_level.checked = !!(a && a.process_level);
+      boxes.self_reg_level.checked = !!(a && a.self_reg_level);
+      boxes.notes.value = a?.notes || '';
+
+      // Update checkbox highlight
+      document.querySelectorAll('.chk').forEach(el => {
+        const input = el.querySelector('input[type="checkbox"]');
+        el.classList.toggle('checked', input.checked);
+      });
+
+      // prev/next state
+      document.getElementById('prevBtn').disabled = index === 0;
+      document.getElementById('nextBtn').textContent = index === (rows.length - 1) ? 'Finish & Download →' : 'Next →';
+    }
+
+    function saveCurrent(){
+      const a = {
+        feed_up: boxes.feed_up.checked ? 1 : 0,
+        feed_back: boxes.feed_back.checked ? 1 : 0,
+        feed_forward: boxes.feed_forward.checked ? 1 : 0,
+        task_level: boxes.task_level.checked ? 1 : 0,
+        process_level: boxes.process_level.checked ? 1 : 0,
+        self_reg_level: boxes.self_reg_level.checked ? 1 : 0,
+        notes: (boxes.notes.value || '').trim()
+      };
+      annotations[index] = a;
+      ok('Saved.');
+      render();
+    }
+
+    function go(delta){
+      saveCurrent();
+      index = Math.min(Math.max(0, index + delta), rows.length - 1);
+      if (delta > 0 && index === rows.length - 1 && allDone()){
+        // Auto prompt to download when finishing last item
+      }
+      render();
+      if (delta > 0 && index === rows.length - 1 && allDone()) {
+        // Optional: auto-open download? We'll leave it to the user.
+      }
+    }
+
+    function allDone(){ return annotations.every(a => a); }
+
+    // === Progress Save/Load ===
+    function saveProgress(){
+      const payload = {
+        timestamp: new Date().toISOString(),
+        index, annotations, rows
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `feedback_annotation_progress_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      ok('Progress saved.');
+    }
+
+    function loadProgress(){ progressFile.click(); }
+
+    function handleProgressLoad(e){
+      const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
+      reader.onload = (ev) => {
+        try{
+          const data = JSON.parse(ev.target.result);
+          if (!Array.isArray(data.rows) || !Array.isArray(data.annotations)) throw new Error('Invalid progress file');
+          rows = data.rows; annotations = data.annotations; index = Math.min(Math.max(0, data.index || 0), rows.length - 1);
+          uploader.classList.add('hidden'); app.classList.remove('hidden'); render(); ok('Progress loaded.');
+        } catch(err){ error('Could not load progress file.'); console.error(err); }
+      };
+      reader.readAsText(file); e.target.value = '';
+    }
+
+    // === Export ===
+    function downloadCSV(){
+      if (!rows.length){ error('No data to export.'); return; }
+      const outHeaders = [
+        'Question','Student Response','Feedback',
+        'feed_up','feed_back','feed_forward','task_level','process_level','self_reg_level','notes'
+      ];
+      const lines = [outHeaders.join(',')];
+
+      for (let i=0; i<rows.length; i++){
+        const r = rows[i];
+        const a = annotations[i] || {};
+        const vals = [
+          r['Question']||'', r['Student Response']||'', r['Feedback']||'',
+          a.feed_up?1:0, a.feed_back?1:0, a.feed_forward?1:0,
+          a.task_level?1:0, a.process_level?1:0, a.self_reg_level?1:0,
+          a.notes||''
+        ].map(csvEscape);
+        lines.push(vals.join(','));
+      }
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'annotated_feedback.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      ok('CSV downloaded.');
+    }
+
+    function csvEscape(v){
+      const s = String(v ?? '');
+      if (/[",\n]/.test(s)){ return '"' + s.replace(/"/g, '""') + '"'; }
+      return s;
+    }
+
+    // === UI helpers ===
+    function ok(msg){
+      statusDiv.textContent = msg; statusDiv.className = 'status ok'; statusDiv.style.display = 'block';
+      setTimeout(() => statusDiv.style.display = 'none', 2000);
+    }
+    function error(msg){
+      statusDiv.textContent = msg; statusDiv.className = 'status err'; statusDiv.style.display = 'block';
+      setTimeout(() => statusDiv.style.display = 'none', 3000);
+    }
+  </script>
+</body>
+</html>
